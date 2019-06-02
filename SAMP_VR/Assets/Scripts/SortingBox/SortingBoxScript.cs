@@ -15,7 +15,7 @@ public class SortingBoxScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        //setAlgorithmText("QuickSort"); // TODO: DELETE
+        setAlgorithmText("RadixSort"); // TODO: DELETE
     }
 	
 	// Update is called once per frame

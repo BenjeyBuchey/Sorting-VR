@@ -644,8 +644,8 @@ public class MoveScript : MonoBehaviour {
         }
         else
         {
-            float xOffset = 5.0f + object_width * position;
-            dest = bucketObjects[bucket].position;
+            float xOffset = object_width * position; // +5f
+            dest = bucketObjects[bucket].position; // position
             dest.y = dest.y - bucketObjects[bucket].localScale.y / 2; //half bucket text size
             dest.x = dest.x + xOffset;
         }

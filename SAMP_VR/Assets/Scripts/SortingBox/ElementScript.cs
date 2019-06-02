@@ -24,7 +24,7 @@ public class ElementScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        //StartSort();
+        StartSort();
 	}
 
     public void spawnElements(int size)

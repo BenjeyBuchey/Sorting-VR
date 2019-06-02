@@ -399,9 +399,9 @@ public class MoveScript : MonoBehaviour {
 
 		foreach(GameObject element in array)
 		{
-			Vector3 dest = element.transform.position;
+			Vector3 dest = element.transform.localPosition;
 			dest.y += mergeDiffY;
-			LeanTween.move(element, dest, swapSpeed);
+			LeanTween.moveLocal(element, dest, swapSpeed);
 		}
 	}
 
@@ -421,6 +421,7 @@ public class MoveScript : MonoBehaviour {
 	private void MoveRadix(GameObject element1, int bucket, int bucketPosition)
 	{
 		Vector3 dest = GetRadixDestination(bucket, bucketPosition, element1);
+        Debug.Log("ELEMENT POSITION: " + element1.transform.position);
         if (bucket == -1)
             LeanTween.moveLocal(element1, dest, swapSpeed);
         else
@@ -644,10 +645,12 @@ public class MoveScript : MonoBehaviour {
         }
         else
         {
-            float xOffset = object_width * position; // +5f
+            float xDiff = 5f * sortingBox.transform.localScale.x;
+            float xOffset = xDiff + xDiff * position; // +5f
             dest = bucketObjects[bucket].position; // position
-            dest.y = dest.y - bucketObjects[bucket].localScale.y / 2; //half bucket text size
+            //dest.y = dest.y - bucketObjects[bucket].localScale.y / 2; //half bucket text size
             dest.x = dest.x + xOffset;
+            Debug.Log("DEST: " + dest);
         }
 
         return dest;

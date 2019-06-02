@@ -14,9 +14,10 @@ public class ElementScript : MonoBehaviour {
     private float y_offset = 5, elementOffsetX = 5.0f;
     private float container_z_offset = 5, outer_z_offset = 15;
 	private Dictionary<int, List<int>> randomNumberArrays = new Dictionary<int, List<int>>();
+    private Vector3 initSortingBoxPosition = new Vector3(0f, 2.5f, 5f);
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 
         int size = getArraySize();
 		spawnElements (size);
@@ -24,7 +25,7 @@ public class ElementScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        StartSort();
+        //StartSort();
 	}
 
     public void spawnElements(int size)
@@ -41,7 +42,7 @@ public class ElementScript : MonoBehaviour {
         int sortingbox_count = GameObject.FindGameObjectsWithTag("SortingBoxes").Length;
 
         //spawn sorting box
-        var sortingbox_go = Instantiate(sortingbox,new Vector3(0f,3f,5f),Quaternion.identity);
+        var sortingbox_go = Instantiate(sortingbox, initSortingBoxPosition, Quaternion.identity);
 		sortingbox_go.name = "SortingBox" + sortingbox_count;
 
 		//spawn elements
@@ -66,13 +67,7 @@ public class ElementScript : MonoBehaviour {
 
 		// sets the initial positions of elements of this sorting box
 		sortingbox_go.GetComponent<SortingBoxScript>().setInitialPositions();
-        //SetSortingboxScale(sortingbox_go);
         //SpawnIndexes(sortingbox_go, sbox_elements);
-    }
-
-    private void SetSortingboxScale(GameObject sortingbox_go)
-    {
-        sortingbox_go.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
     }
 
 	private void SpawnIndexes(GameObject sortingbox_go, GameObject[] sbox_elements)
@@ -98,9 +93,41 @@ public class ElementScript : MonoBehaviour {
         float width = size * container_z_offset + 2 * outer_z_offset;
         container_transform.GetComponent<RectTransform>().sizeDelta = new Vector2(width, initHeight);
 
-		Vector3 old_pos = sortingbox_go.transform.position;
-		Vector3 new_pos = new Vector3(old_pos.x, old_pos.y + count * (initHeight + y_offset), old_pos.z);
-		sortingbox_go.transform.position = new_pos;
+        // box collider size
+        BoxCollider collider = sortingbox_go.GetComponent<BoxCollider>();
+        collider.size = new Vector3(width, collider.size.y, collider.size.z);
+
+        float containerWidth = container_transform.GetComponent<RectTransform>().sizeDelta.x;
+        float xOffset = containerWidth / 14;
+        float xPos = sortingbox_go.transform.position.x + count * (containerWidth + xOffset) * sortingbox_go.transform.localScale.x;
+        sortingbox_go.transform.position = GetSortingBoxPosition(containerWidth, sortingbox_go);
+
+        // TODO: check & fix shellsort and maybe other algos with fastforward etc
+
+        // TODO: adjustPositions method which sets all sortingBox locations starting from the initPosition (VR push button like add? so that users can control it themselves!?)
+    }
+
+    private Vector3 GetSortingBoxPosition(float width, GameObject newSortingBox)
+    {
+        float scale = newSortingBox.transform.localScale.x;
+        float xOffset = 5f * scale;
+
+        // get previous sortingbox
+        GameObject[] sortingBoxes = GameObject.FindGameObjectsWithTag("SortingBoxes");
+        if (sortingBoxes == null || sortingBoxes.Length < 2) return initSortingBoxPosition;
+
+        GameObject prevSortingBox = sortingBoxes[sortingBoxes.Length - 2];
+        if (prevSortingBox == null) return initSortingBoxPosition;
+
+        Debug.Log("PREVIOUS SBOX POS: " + prevSortingBox.transform.position);
+        Debug.Log("prev sbox width * scale: " + prevSortingBox.transform.Find("ElementContainer").GetComponent<RectTransform>().sizeDelta.x / 2 * scale);
+        Debug.Log("xOffset: " + xOffset);
+        Debug.Log("width * scale: " + width / 2 * scale);
+
+        float x = prevSortingBox.transform.position.x + prevSortingBox.transform.Find("ElementContainer").GetComponent<RectTransform>().sizeDelta.x / 2 * scale + xOffset
+            + width / 2 * scale;
+
+        return new Vector3(x, initSortingBoxPosition.y, initSortingBoxPosition.z);
     }
 
     private int getArraySize()
@@ -528,22 +555,6 @@ public class ElementScript : MonoBehaviour {
 
         return size;
     }
-
-    //private void setElementDropdown(int size)
-    //{
-    //    Dropdown dd = GameObject.Find("ElementCountDropdown").GetComponent<Dropdown>();
-    //    if (dd == null)
-    //        return;
-
-    //    for (int i = 0; i < dd.options.Count; i++)
-    //    {
-    //        if (dd.options[i].text.Equals(size.ToString()))
-    //        {
-    //            dd.value = i;
-    //            break;
-    //        }
-    //    }
-    //}
 
     private void setTrailRenderer(GameObject[] array, bool visible)
     {

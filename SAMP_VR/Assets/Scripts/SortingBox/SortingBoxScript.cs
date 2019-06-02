@@ -15,7 +15,7 @@ public class SortingBoxScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        setAlgorithmText("RadixSort"); // TODO: DELETE
+        //setAlgorithmText("MergeSort"); // TODO: DELETE
     }
 	
 	// Update is called once per frame
@@ -26,14 +26,25 @@ public class SortingBoxScript : MonoBehaviour {
     private void OnCollisionEnter(Collision collision)
     {
         VRTK.Examples.GunShoot gunShootScript = collision.gameObject.GetComponentInParent<VRTK.Examples.GunShoot>();
-        if (gunShootScript != null && gunShootScript.gameObject != null)
-            TriggerAlgorithm(gunShootScript.gameObject);     
+        if (gunShootScript == null || gunShootScript.gameObject == null) return;
+
+        if (gunShootScript.gameObject.tag.Equals("DeleteSortingbox"))
+            TriggerDeleteSortingbox(gunShootScript.gameObject);
+        else
+            TriggerAlgorithm(gunShootScript.gameObject);
     }
 
     private void TriggerAlgorithm(GameObject go)
     {
         setAlgorithmText(go.tag);
         GameObject.Find("ElementSpawner").GetComponent<ElementScript>().StartSort();
+    }
+
+    private void TriggerDeleteSortingbox(GameObject go)
+    {
+        if (HelperScript.IsPaused() || isInUse()) return;
+
+        Destroy(gameObject);
     }
 
     public void setElementArray(GameObject[] array)

@@ -23,7 +23,7 @@
         {
             if (displayText != null)
             {
-                displayText.text = e.value.ToString("F1");
+                displayText.text = e.value.ToString(); //e.value.ToString("F1");
             }
         }
 

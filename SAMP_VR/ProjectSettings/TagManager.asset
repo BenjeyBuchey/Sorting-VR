@@ -27,6 +27,7 @@ TagManager:
   - ShellSort
   - RadixSort
   - MergeSort
+  - DeleteSortingbox
   layers:
   - Default
   - TransparentFX

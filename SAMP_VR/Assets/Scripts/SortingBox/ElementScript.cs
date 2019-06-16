@@ -8,6 +8,7 @@ using Random = UnityEngine.Random;
 
 public class ElementScript : MonoBehaviour {
 
+    enum SPAWN_TYPE { Random, NearlySorted, ReverseSorted };
 	private GameObject[] elementArray;
 	public GameObject element;
 	public GameObject sortingbox;
@@ -162,6 +163,9 @@ public class ElementScript : MonoBehaviour {
 			randomNumbers = GetRandomNumbers(elements.Length);
 			randomNumberArrays.Add(elements.Length, randomNumbers);
 		}
+
+        // here we adjust the element array according to spawn type
+        HandleSpawnType(randomNumbers);
 
 		//List<int> randomNumbers = GetRandomNumbers(elements.Length);
 		int uniqueNumbers = randomNumbers.Distinct().Count();
@@ -565,17 +569,71 @@ public class ElementScript : MonoBehaviour {
 		}
     }
 
-	// generates a sorted list with random numbers
+	// generates a list with random numbers
 	private List<int> GetRandomNumbers(int length)
 	{
 		List<int> randomNumbers = new List<int>();
 		for (int i = 0; i < length; i++)
 			randomNumbers.Add(Random.Range(1,99));
 
-		return randomNumbers;
+        return randomNumbers;
 	}
 
-	// TODO: element index texts
-	// tmp text --> child of ElementContainer. width/height 2.5, center, font size 2. pos x is element pos x. pos y is -containerHeight/2 + tmptext height
-	// own script for
+    private void HandleSpawnType(List<int> randomNumbers)
+    {
+        GameObject spawnTypeLever = GameObject.Find("SpawnTypeLever");
+        if (spawnTypeLever == null) return;
+
+        foreach (Transform t in spawnTypeLever.GetComponentsInChildren<Transform>())
+        {
+            if(t.name == "LeverControl")
+            {
+                VR_SpawnTypeScript script = t.gameObject.GetComponent<VR_SpawnTypeScript>();
+                if (script == null) return;
+
+                int spawnType = script.GetLeverValue();
+                switch (spawnType)
+                {
+                    case (int)SPAWN_TYPE.Random:
+                        break;
+                    case (int)SPAWN_TYPE.NearlySorted:
+                        HandleNearlySorted(randomNumbers);
+                        break;
+                    case (int)SPAWN_TYPE.ReverseSorted:
+                        HandleReverseSorted(randomNumbers);
+                        break;
+                }
+            }
+        }      
+    }
+
+    private void HandleNearlySorted(List<int> numbers)
+    {
+        numbers.Sort();
+        int swaps = 1;
+        if (numbers.Count > 9 && numbers.Count < 16)
+            swaps = 2;
+        if (numbers.Count >= 16)
+            swaps = 3;
+
+        for(int i = 0; i < swaps; i++)
+        {
+            int r = Random.Range(1, numbers.Count - 1);
+            int tmp = numbers[r];
+            numbers[r] = numbers[r - 1];
+            numbers[r - 1] = tmp;
+        }
+    }
+
+    private void HandleReverseSorted(List<int> numbers)
+    {
+        numbers.Sort();
+        Debug.Log(numbers);
+        numbers.Reverse();
+        Debug.Log(numbers);
+    }
+
+    // TODO: element index texts
+    // tmp text --> child of ElementContainer. width/height 2.5, center, font size 2. pos x is element pos x. pos y is -containerHeight/2 + tmptext height
+    // own script for
 }
